@@ -417,82 +417,8 @@ function App() {
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-80 dark:via-white/30" />
 
-          <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-[1.12fr_0.88fr]">
-            <div className="space-y-6 sm:space-y-8">
-              <div className="inline-flex items-center rounded-full border border-sky-200/70 bg-white/80 px-4 py-2 text-[11px] font-semibold leading-5 text-sky-700 shadow-sm shadow-sky-500/10 dark:border-sky-300/15 dark:bg-slate-900/60 dark:text-sky-200 sm:text-sm">
-                Open to internships, collaborations, and frontend opportunities
-              </div>
-
-              <div className="space-y-4 sm:space-y-5">
-                <p className="section-label">Portfolio</p>
-                <h1 className="max-w-3xl font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
-                  Building polished web experiences with a glossy visual edge.
-                </h1>
-
-                <div className="flex flex-wrap items-center gap-3 text-base text-slate-600 dark:text-slate-300 sm:text-lg">
-                  <span>I am Saaqib A, an</span>
-                  <span className="inline-flex min-h-[3rem] items-center rounded-full border border-white/75 bg-white/80 px-4 py-2.5 text-sm font-semibold shadow-lg shadow-sky-500/10 dark:border-white/10 dark:bg-slate-900/65 sm:min-h-[3.25rem] sm:px-5 sm:py-3 sm:text-base">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={heroRoles[roleIndex]}
-                        initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -12 }}
-                        transition={{ duration: shouldReduceMotion ? 0 : 0.35 }}
-                        className="text-gradient"
-                      >
-                        {heroRoles[roleIndex]}
-                      </motion.span>
-                    </AnimatePresence>
-                  </span>
-                </div>
-
-                <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-lg sm:leading-8">
-                  I enjoy blending solid engineering fundamentals with clean
-                  presentation. This refreshed portfolio highlights my projects,
-                  mentoring experience, and an easier way to reach me by email.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="/Saaqib_Resume.pdf"
-                  download
-                  className="primary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
-                >
-                  Download resume
-                </a>
-                <a
-                  href="#contact"
-                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
-                >
-                  Contact by email
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/saaqib-veltech/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
-                >
-                  LinkedIn
-                </a>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5 sm:gap-3">
-                {["React interfaces", "AI-driven projects", "Mentoring", "System thinking"].map(
-                  (tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/10 dark:bg-slate-900/50 dark:text-slate-200"
-                    >
-                      {tag}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-
-            <div className="relative">
+          <div className="flex flex-col items-center gap-8 sm:gap-10">
+            <div className="relative w-full max-w-xl">
               <motion.div
                 {...floatingMotionProps({ y: [0, -12, 0] }, 8)}
                 className="absolute -right-6 top-8 hidden h-24 w-24 rounded-full border border-white/50 bg-white/35 blur-sm dark:border-white/10 dark:bg-white/10 lg:block"
@@ -549,6 +475,80 @@ function App() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="flex w-full max-w-3xl flex-col items-center space-y-6 text-center sm:space-y-8">
+              <div className="inline-flex items-center rounded-full border border-sky-200/70 bg-white/80 px-4 py-2 text-[11px] font-semibold leading-5 text-sky-700 shadow-sm shadow-sky-500/10 dark:border-sky-300/15 dark:bg-slate-900/60 dark:text-sky-200 sm:text-sm">
+                Open to internships, collaborations, and frontend opportunities
+              </div>
+
+              <div className="space-y-4 sm:space-y-5">
+                <p className="section-label">Portfolio</p>
+                <h1 className="mx-auto max-w-3xl font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
+                  Building polished web experiences with a glossy visual edge.
+                </h1>
+
+                <div className="flex flex-wrap items-center justify-center gap-3 text-base text-slate-600 dark:text-slate-300 sm:text-lg">
+                  <span>I am Saaqib A, an</span>
+                  <span className="inline-flex min-h-[3rem] items-center rounded-full border border-white/75 bg-white/80 px-4 py-2.5 text-sm font-semibold shadow-lg shadow-sky-500/10 dark:border-white/10 dark:bg-slate-900/65 sm:min-h-[3.25rem] sm:px-5 sm:py-3 sm:text-base">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={heroRoles[roleIndex]}
+                        initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -12 }}
+                        transition={{ duration: shouldReduceMotion ? 0 : 0.35 }}
+                        className="text-gradient"
+                      >
+                        {heroRoles[roleIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </span>
+                </div>
+
+                <p className="mx-auto max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-lg sm:leading-8">
+                  I enjoy blending solid engineering fundamentals with clean
+                  presentation. This refreshed portfolio highlights my projects,
+                  mentoring experience, and an easier way to reach me by email.
+                </p>
+              </div>
+
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center">
+                <a
+                  href="/Saaqib_Resume.pdf"
+                  download
+                  className="primary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
+                >
+                  Download resume
+                </a>
+                <a
+                  href="#contact"
+                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
+                >
+                  Contact by email
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/saaqib-veltech/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
+                >
+                  LinkedIn
+                </a>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3">
+                {["React interfaces", "AI-driven projects", "Mentoring", "System thinking"].map(
+                  (tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/10 dark:bg-slate-900/50 dark:text-slate-200"
+                    >
+                      {tag}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
           </div>
