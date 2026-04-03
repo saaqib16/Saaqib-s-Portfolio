@@ -3,6 +3,7 @@ import {
   motion,
   useScroll,
   useSpring,
+  useReducedMotion,
 } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -151,14 +152,19 @@ const contactLinks = [
 
 const contactEmail = "dev.saaqib17@gmail.com";
 
-const revealProps = {
-  initial: { opacity: 0, y: 28 },
+const transitionEase = [0.22, 1, 0.36, 1];
+
+const getRevealProps = (shouldReduceMotion) => ({
+  initial: shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
-};
+  viewport: { once: true, amount: 0.15 },
+  transition: shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 0.7, ease: transitionEase },
+});
 
 function App() {
+  const shouldReduceMotion = useReducedMotion();
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -188,6 +194,14 @@ function App() {
     damping: 26,
     mass: 0.18,
   });
+  const revealProps = getRevealProps(shouldReduceMotion);
+  const floatingMotionProps = (animate, duration) =>
+    shouldReduceMotion
+      ? {}
+      : {
+          animate,
+          transition: { duration, repeat: Infinity, ease: "easeInOut" },
+        };
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -204,11 +218,36 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (shouldReduceMotion) {
+      return undefined;
+    }
+
     const timerId = window.setInterval(() => {
       setRoleIndex((currentIndex) => (currentIndex + 1) % heroRoles.length);
     }, 2800);
 
     return () => window.clearInterval(timerId);
+  }, [shouldReduceMotion]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    const handleBreakpointChange = (event) => {
+      if (event.matches) {
+        setMenuOpen(false);
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleBreakpointChange);
+
+    return () => mediaQuery.removeEventListener("change", handleBreakpointChange);
   }, []);
 
   useEffect(() => {
@@ -273,31 +312,28 @@ function App() {
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.2),_transparent_26%),radial-gradient(circle_at_85%_12%,_rgba(255,255,255,0.9),_transparent_18%),linear-gradient(135deg,_#f5fbff_0%,_#edf4ff_38%,_#f8fbff_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_24%),radial-gradient(circle_at_85%_12%,_rgba(99,102,241,0.16),_transparent_18%),linear-gradient(135deg,_#020617_0%,_#0f172a_42%,_#111827_100%)]" />
         <motion.div
-          animate={{ x: [0, 42, 0], y: [0, -28, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -left-16 top-24 h-80 w-80 rounded-full bg-cyan-300/30 blur-3xl dark:bg-cyan-500/18"
+          {...floatingMotionProps({ x: [0, 42, 0], y: [0, -28, 0] }, 14)}
+          className="absolute -left-16 top-24 h-64 w-64 rounded-full bg-cyan-300/30 blur-3xl dark:bg-cyan-500/18 sm:h-80 sm:w-80"
         />
         <motion.div
-          animate={{ x: [0, -34, 0], y: [0, 30, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute right-0 top-20 h-72 w-72 rounded-full bg-sky-300/25 blur-3xl dark:bg-indigo-500/18"
+          {...floatingMotionProps({ x: [0, -34, 0], y: [0, 30, 0] }, 16)}
+          className="absolute right-0 top-20 h-56 w-56 rounded-full bg-sky-300/25 blur-3xl dark:bg-indigo-500/18 sm:h-72 sm:w-72"
         />
         <motion.div
-          animate={{ x: [0, 26, 0], y: [0, 36, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-white/60 blur-3xl dark:bg-white/5"
+          {...floatingMotionProps({ x: [0, 26, 0], y: [0, 36, 0] }, 18)}
+          className="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-white/60 blur-3xl dark:bg-white/5 sm:h-96 sm:w-96"
         />
-        <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.75)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.75)_1px,transparent_1px)] [background-size:120px_120px] [mask-image:radial-gradient(circle_at_center,_black_20%,_transparent_70%)] dark:opacity-10" />
+        <div className="absolute inset-0 hidden opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.75)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.75)_1px,transparent_1px)] [background-size:120px_120px] [mask-image:radial-gradient(circle_at_center,_black_20%,_transparent_70%)] dark:opacity-10 sm:block" />
       </div>
 
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8"
+        transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
+        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4 lg:px-8"
       >
         <div
-          className={`mx-auto flex max-w-7xl items-center justify-between rounded-full border px-4 py-3 transition-all duration-300 sm:px-6 ${
+          className={`mx-auto flex max-w-7xl items-center justify-between rounded-[1.4rem] border px-4 py-3 transition-all duration-300 sm:rounded-full sm:px-6 ${
             scrolled
               ? "glass-panel shadow-2xl shadow-slate-900/10 dark:shadow-black/30"
               : "border-white/60 bg-white/55 backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35"
@@ -333,22 +369,22 @@ function App() {
           <button
             type="button"
             onClick={() => setMenuOpen((current) => !current)}
-            className="secondary-button px-4 py-2 text-sm md:hidden"
+            className="secondary-button min-w-[88px] justify-center px-4 py-2 text-sm md:hidden"
             aria-label="Toggle navigation menu"
           >
-            Menu
+            {menuOpen ? "Close" : "Menu"}
           </button>
         </div>
 
         {menuOpen && (
-          <div className="mx-auto mt-3 max-w-7xl rounded-[1.75rem] border border-white/60 bg-white/80 p-5 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/30 md:hidden">
+          <div className="mx-auto mt-3 max-w-7xl rounded-[1.5rem] border border-white/60 bg-white/80 p-4 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/30 md:hidden">
             <div className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={closeMenu}
-                  className="text-sm font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-200 dark:hover:text-sky-300"
+                  className="rounded-2xl border border-transparent px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-white/50 hover:bg-white/60 hover:text-sky-600 dark:text-slate-200 dark:hover:border-white/10 dark:hover:bg-slate-950/40 dark:hover:text-sky-300"
                 >
                   {item.label}
                 </a>
@@ -368,38 +404,41 @@ function App() {
         )}
       </motion.nav>
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+      <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-16 pt-24 sm:gap-8 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
         <motion.section
           id="hero"
           initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="glass-panel gloss-card relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 lg:px-12"
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.8,
+            ease: transitionEase,
+          }}
+          className="glass-panel gloss-card relative overflow-hidden rounded-[1.75rem] px-5 py-8 sm:rounded-[2rem] sm:px-10 sm:py-10 lg:px-12"
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-80 dark:via-white/30" />
 
-          <div className="grid items-center gap-12 lg:grid-cols-[1.12fr_0.88fr]">
-            <div className="space-y-8">
-              <div className="inline-flex items-center rounded-full border border-sky-200/70 bg-white/80 px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm shadow-sky-500/10 dark:border-sky-300/15 dark:bg-slate-900/60 dark:text-sky-200">
+          <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-[1.12fr_0.88fr]">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="inline-flex items-center rounded-full border border-sky-200/70 bg-white/80 px-4 py-2 text-[11px] font-semibold leading-5 text-sky-700 shadow-sm shadow-sky-500/10 dark:border-sky-300/15 dark:bg-slate-900/60 dark:text-sky-200 sm:text-sm">
                 Open to internships, collaborations, and frontend opportunities
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-4 sm:space-y-5">
                 <p className="section-label">Portfolio</p>
-                <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
+                <h1 className="max-w-3xl font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
                   Building polished web experiences with a glossy visual edge.
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-3 text-lg text-slate-600 dark:text-slate-300">
+                <div className="flex flex-wrap items-center gap-3 text-base text-slate-600 dark:text-slate-300 sm:text-lg">
                   <span>I am Saaqib A, an</span>
-                  <span className="inline-flex min-h-[3.25rem] items-center rounded-full border border-white/75 bg-white/80 px-5 py-3 font-semibold shadow-lg shadow-sky-500/10 dark:border-white/10 dark:bg-slate-900/65">
+                  <span className="inline-flex min-h-[3rem] items-center rounded-full border border-white/75 bg-white/80 px-4 py-2.5 text-sm font-semibold shadow-lg shadow-sky-500/10 dark:border-white/10 dark:bg-slate-900/65 sm:min-h-[3.25rem] sm:px-5 sm:py-3 sm:text-base">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={heroRoles[roleIndex]}
-                        initial={{ opacity: 0, y: 12 }}
+                        initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
-                        transition={{ duration: 0.35 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -12 }}
+                        transition={{ duration: shouldReduceMotion ? 0 : 0.35 }}
                         className="text-gradient"
                       >
                         {heroRoles[roleIndex]}
@@ -408,7 +447,7 @@ function App() {
                   </span>
                 </div>
 
-                <p className="max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">
+                <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-lg sm:leading-8">
                   I enjoy blending solid engineering fundamentals with clean
                   presentation. This refreshed portfolio highlights my projects,
                   mentoring experience, and an easier way to reach me by email.
@@ -419,13 +458,13 @@ function App() {
                 <a
                   href="/Saaqib_Resume.pdf"
                   download
-                  className="primary-button justify-center px-6 py-3 text-base"
+                  className="primary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
                 >
                   Download resume
                 </a>
                 <a
                   href="#contact"
-                  className="secondary-button justify-center px-6 py-3 text-base"
+                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
                 >
                   Contact by email
                 </a>
@@ -433,13 +472,13 @@ function App() {
                   href="https://www.linkedin.com/in/saaqib-veltech/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="secondary-button justify-center px-6 py-3 text-base"
+                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
                 >
                   LinkedIn
                 </a>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
                 {["React interfaces", "AI-driven projects", "Mentoring", "System thinking"].map(
                   (tag) => (
                     <span
@@ -455,20 +494,21 @@ function App() {
 
             <div className="relative">
               <motion.div
-                animate={{ y: [0, -12, 0] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                {...floatingMotionProps({ y: [0, -12, 0] }, 8)}
                 className="absolute -right-6 top-8 hidden h-24 w-24 rounded-full border border-white/50 bg-white/35 blur-sm dark:border-white/10 dark:bg-white/10 lg:block"
               />
 
-              <div className="glass-panel gloss-card relative overflow-hidden rounded-[2rem] p-5 sm:p-6">
+              <div className="glass-panel gloss-card relative overflow-hidden rounded-[1.75rem] p-3.5 sm:rounded-[2rem] sm:p-6">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(125,211,252,0.28),_transparent_30%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.18),_transparent_30%)]" />
 
                 <div className="relative space-y-6">
-                  <div className="overflow-hidden rounded-[1.75rem] border border-white/70 bg-white/65 p-4 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-950/45">
+                  <div className="overflow-hidden rounded-[1.4rem] border border-white/70 bg-white/65 p-3 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-950/45 sm:rounded-[1.75rem] sm:p-4">
                     <img
                       src="/profile.jpg"
                       alt="Portrait of Saaqib A"
-                      className="h-[320px] w-full rounded-[1.3rem] object-cover object-center"
+                      className="h-[240px] w-full rounded-[1.1rem] object-cover object-center sm:h-[320px] sm:rounded-[1.3rem]"
+                      decoding="async"
+                      fetchPriority="high"
                     />
                   </div>
 
@@ -517,9 +557,9 @@ function App() {
         <motion.section
           id="about"
           {...revealProps}
-          className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
+          className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6"
         >
-          <div className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10">
+          <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10">
             <p className="section-label">About me</p>
             <h2 className="mt-4 max-w-2xl font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
               I like creating websites that feel intentional, useful, and easy
@@ -552,8 +592,8 @@ function App() {
             </div>
           </div>
 
-          <div className="grid gap-6">
-            <div className="glass-panel gloss-card rounded-[2rem] p-8">
+          <div className="grid gap-5 lg:gap-6">
+            <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-8">
               <p className="section-label">Focus</p>
               <h3 className="mt-4 font-display text-2xl font-semibold text-slate-950 dark:text-white">
                 Where I create the most impact
@@ -591,7 +631,7 @@ function App() {
               </div>
             </div>
 
-            <div className="glass-panel gloss-card rounded-[2rem] p-8">
+            <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-8">
               <p className="section-label">Education</p>
               <h3 className="mt-4 font-display text-2xl font-semibold text-slate-950 dark:text-white">
                 B.Tech in Computer Science
@@ -610,7 +650,7 @@ function App() {
         <motion.section
           id="skills"
           {...revealProps}
-          className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10"
+          className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -651,7 +691,7 @@ function App() {
         <motion.section
           id="projects"
           {...revealProps}
-          className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10"
+          className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -719,9 +759,9 @@ function App() {
         <motion.section
           id="experience"
           {...revealProps}
-          className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]"
+          className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:gap-6"
         >
-          <div className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10">
+          <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10">
             <p className="section-label">Experience</p>
             <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
               Teaching, training, and building in parallel
@@ -748,8 +788,8 @@ function App() {
             </div>
           </div>
 
-          <div className="grid gap-6">
-            <div className="glass-panel gloss-card rounded-[2rem] p-8">
+          <div className="grid gap-5 lg:gap-6">
+            <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-8">
               <p className="section-label">What teams get</p>
               <div className="mt-6 space-y-4">
                 {[
@@ -767,7 +807,7 @@ function App() {
               </div>
             </div>
 
-            <div className="glass-panel gloss-card rounded-[2rem] p-8">
+            <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-8">
               <p className="section-label">Contact ready</p>
               <h3 className="mt-4 font-display text-2xl font-semibold text-slate-950 dark:text-white">
                 Reach me directly by email
@@ -789,9 +829,9 @@ function App() {
         <motion.section
           id="contact"
           {...revealProps}
-          className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]"
+          className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:gap-6"
         >
-          <div className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10">
+          <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10">
             <p className="section-label">Contact</p>
             <h2 className="mt-4 max-w-xl font-display text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
               Let us turn an idea into something people actually enjoy using.
@@ -846,7 +886,7 @@ function App() {
             </div>
           </div>
 
-          <div className="glass-panel gloss-card rounded-[2rem] p-8 sm:p-10">
+          <div className="glass-panel gloss-card rounded-[1.75rem] p-6 sm:rounded-[2rem] sm:p-10">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="section-label">Mail draft</p>
@@ -858,7 +898,7 @@ function App() {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="secondary-button px-5 py-3 text-sm"
+                className="secondary-button w-full justify-center px-5 py-3 text-sm sm:w-auto"
               >
                 {copied ? "Email copied" : "Copy email"}
               </button>
@@ -917,13 +957,13 @@ function App() {
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
-                  className="primary-button justify-center px-6 py-3 text-base"
+                  className="primary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
                 >
                   Open mail draft
                 </button>
                 <a
                   href={mailtoLink}
-                  className="secondary-button justify-center px-6 py-3 text-base"
+                  className="secondary-button w-full justify-center px-6 py-3 text-base sm:w-auto"
                 >
                   Preview draft link
                 </a>
@@ -932,7 +972,7 @@ function App() {
           </div>
         </motion.section>
 
-        <footer className="glass-panel rounded-[2rem] px-6 py-6 text-center text-sm text-slate-600 dark:text-slate-300">
+        <footer className="glass-panel rounded-[1.75rem] px-5 py-5 text-center text-sm text-slate-600 dark:text-slate-300 sm:rounded-[2rem] sm:px-6 sm:py-6">
           Designed to feel glossy, dynamic, and easy to reach.
         </footer>
       </main>
